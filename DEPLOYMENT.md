@@ -260,7 +260,7 @@ Repository → Settings → Secrets and variables → Actions → Repository sec
 ### 4.2 Add Environment Variables (SEBELUM Deploy)
 1. Di halaman import project, scroll ke bawah ke section **"Environment Variables"**
 2. Atau klik **"Configure Project"** sebelum deploy
-3. Add variables berikut:
+3. Add variables berikut **sebagai Environment Variables, BUKAN Secrets**:
 
 ```bash
 # Variable Name: NEXT_PUBLIC_SUPABASE_URL
@@ -269,6 +269,11 @@ Repository → Settings → Secrets and variables → Actions → Repository sec
 # Variable Name: NEXT_PUBLIC_SUPABASE_ANON_KEY  
 # Value: eyJhbGciOiJIUzI... (anon key dari step 1.3)
 ```
+
+**🔧 PENTING - Perbedaan Environment Variables vs Secrets:**
+- ✅ **Environment Variables**: Diset langsung dengan nilai (yang kita gunakan)
+- ❌ **Secrets**: Menggunakan format `@secret-name` (JANGAN gunakan ini)
+- 📝 **Lokasi**: Project Settings → Environment Variables → bukan di "Secrets"
 
 **🔒 Catatan Keamanan:**
 - ✅ **AMAN**: `NEXT_PUBLIC_` variables akan terlihat di browser (client-side)
@@ -343,14 +348,15 @@ Pastikan semua bekerja dengan baik:
 - Check database schema matches
 - Verify data format in Google Sheets
 
-### ❌ "Build failed" in Vercel
-**Cause**: Missing environment variables
-**Solution**:
-- Set environment variables SEBELUM deploy pertama kali
-- Jika sudah terlanjur deploy: Settings → Environment Variables → add → Redeploy
-- Pastikan kedua environment variables sudah ada:
-  - `NEXT_PUBLIC_SUPABASE_URL`
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+### ❌ "Environment Variable references Secret which does not exist"
+**Cause**: File `vercel.json` menggunakan format lama dengan `@secret-name`
+**Solution**: 
+- File `vercel.json` sudah diperbaiki untuk tidak mereferensikan secrets
+- Environment variables diset langsung di Vercel dashboard, bukan sebagai secrets
+- Jika masih error, hapus semua environment variables di Vercel dan set ulang:
+  - `NEXT_PUBLIC_SUPABASE_URL` = `https://xxx.supabase.co`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `eyJhbGci...`
+- Redeploy setelah environment variables diset dengan benar
 
 ## 🎉 Success!
 
