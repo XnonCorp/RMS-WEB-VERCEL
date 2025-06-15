@@ -62,36 +62,52 @@ export default function Dashboard() {
   const [dateTo, setDateTo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [customers, setCustomers] = useState<string[]>([])
-
   // Fetch data from Supabase
-  useEffect(() => {
-    fetchData()
-  }, [])
-
   const fetchData = async () => {
     setLoading(true)
     try {
-      const { data: shipmentDetails, error } = await supabase
-        .from('shipment_details')
-        .select('*')
-        .order('pick_up', { ascending: false })
+      // Fetch all data by removing limit and using pagination
+      let allData: ShipmentDetail[] = []
+      let from = 0
+      const batchSize = 1000
+      let hasMore = true
 
-      if (error) {
-        console.error('Error fetching data:', error)
-        return
+      while (hasMore) {
+        const { data: shipmentDetails, error } = await supabase
+          .from('shipment_details')
+          .select('*')
+          .order('pick_up', { ascending: false })
+          .range(from, from + batchSize - 1)
+
+        if (error) {
+          console.error('Error fetching data:', error)
+          break
+        }
+
+        if (shipmentDetails && shipmentDetails.length > 0) {
+          allData = [...allData, ...shipmentDetails]
+          from += batchSize
+          
+          // If we got less than batchSize, we've reached the end
+          if (shipmentDetails.length < batchSize) {
+            hasMore = false
+          }
+        } else {
+          hasMore = false
+        }
       }
 
-      const formattedData = shipmentDetails || []
-      setData(formattedData)
-      setFilteredData(formattedData)
-
+      console.log(`Fetched ${allData.length} total records`)
+      setData(allData)
+      setFilteredData(allData)
+      
       // Calculate stats
-      const uniqueCustomers = Array.from(new Set(formattedData.map((item: ShipmentDetail) => item.customer))).filter(Boolean)
-      const uniqueDestinations = Array.from(new Set(formattedData.map((item: ShipmentDetail) => item.tujuan))).filter(Boolean)
-      const totalInvoices = formattedData.filter((item: ShipmentDetail) => item.no_invoice).length
+      const uniqueCustomers = Array.from(new Set(allData.map((item: ShipmentDetail) => item.customer))).filter(Boolean)
+      const uniqueDestinations = Array.from(new Set(allData.map((item: ShipmentDetail) => item.tujuan))).filter(Boolean)
+      const totalInvoices = allData.filter((item: ShipmentDetail) => item.no_invoice).length
 
       setStats({
-        totalShipments: formattedData.length,
+        totalShipments: allData.length,
         totalInvoices,
         totalCustomers: uniqueCustomers.length,
         uniqueDestinations: uniqueDestinations.length
@@ -104,6 +120,10 @@ export default function Dashboard() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   // Filter data based on selected filters
   useEffect(() => {
