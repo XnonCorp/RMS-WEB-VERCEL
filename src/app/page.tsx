@@ -51,14 +51,14 @@ export default function Dashboard() {
   const [data, setData] = useState<ShipmentDetail[]>([])
   const [filteredData, setFilteredData] = useState<ShipmentDetail[]>([])
   const [stats, setStats] = useState<Stats>({
-    totalShipments: 0,
-    totalInvoices: 0,
+    totalShipments: 0,    totalInvoices: 0,
     totalCustomers: 0,
     uniqueDestinations: 0
   })
   const [loading, setLoading] = useState(true)
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([])
   const [customerSearch, setCustomerSearch] = useState('')
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false)
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -380,12 +380,7 @@ export default function Dashboard() {
             </div>
             <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               RMS Dashboard
-            </span>
-          </div>          <div className="space-y-4">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Shipment & Invoice Dashboard
-            </h1>
-          </div>
+            </span>          </div>
         </div>
 
         {/* Stats Cards */}
@@ -515,79 +510,40 @@ export default function Dashboard() {
                   Use <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">comma</span>, 
                   <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded mx-1">semicolon</span>, or 
                   <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">pipe</span> to search multiple terms
-                </p>
-              </div>
-                <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Customers ({selectedCustomers.length} selected)</label>
-                
-                {/* Customer Search Input */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search customers..."
-                    value={customerSearch}
-                    onChange={(e) => setCustomerSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                  />
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <div className="w-4 h-4">
+                </p>              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Customer Filter</label>
+                <button
+                  onClick={() => setIsCustomerModalOpen(true)}
+                  className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:bg-white/70 dark:hover:bg-gray-800/70 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-5 h-5 text-gray-400">
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                    </div>
+                    <span className="text-sm">
+                      {selectedCustomers.length === 0 
+                        ? 'All Customers' 
+                        : `${selectedCustomers.length} customer${selectedCustomers.length > 1 ? 's' : ''} selected`
+                      }
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {selectedCustomers.length > 0 && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200">
+                        {selectedCustomers.length}
+                      </span>
+                    )}
+                    <div className="w-4 h-4 text-gray-400">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
                   </div>
-                </div>
-
-                {/* Selected Customers Display */}
-                {selectedCustomers.length > 0 && (
-                  <div className="flex flex-wrap gap-1 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">                    {selectedCustomers.map((customer) => (
-                      <span
-                        key={customer}
-                        className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200"
-                      >
-                        {customer}
-                        <button
-                          onClick={() => setSelectedCustomers((prev) => prev.filter((c) => c !== customer))}
-                          className="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                    <button
-                      onClick={() => setSelectedCustomers([])}
-                      className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100 font-medium"
-                    >
-                      Clear all
-                    </button>
-                  </div>
-                )}
-
-                {/* Customer Dropdown List */}
-                <div className="max-h-32 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">                  {customers
-                    .filter((customer) => 
-                      customer.toLowerCase().includes(customerSearch.toLowerCase()) &&
-                      !selectedCustomers.includes(customer)
-                    )
-                    .slice(0, 10)
-                    .map((customer) => (
-                      <button
-                        key={customer}
-                        onClick={() => setSelectedCustomers((prev) => [...prev, customer])}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        {customer}
-                      </button>
-                    ))}
-                  {customers.filter((customer) => 
-                    customer.toLowerCase().includes(customerSearch.toLowerCase()) &&
-                    !selectedCustomers.includes(customer)
-                  ).length === 0 && (
-                    <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                      {customerSearch ? 'No customers found' : 'All customers selected'}
-                    </div>
-                  )}
-                </div>
+                </button>
               </div>
               
               <div className="space-y-2">
@@ -920,14 +876,146 @@ export default function Dashboard() {
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                  </div>
-                  <span>Refresh Data</span>
+                  </div>                  <span>Refresh Data</span>
                 </button>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </div>      {/* Customer Selection Modal */}
+      {isCustomerModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setIsCustomerModalOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg text-white">
+                  <div className="w-5 h-5">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Select Customers</h3>
+              </div>
+              <button
+                onClick={() => setIsCustomerModalOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
+              >
+                <div className="w-5 h-5">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+              {/* Search Input */}
+              <div className="p-4 border-b border-gray-200 dark:border-gray-600">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search customers..."
+                    value={customerSearch}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                    autoFocus
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <div className="w-5 h-5">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer List */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-2">
+                  {customers
+                    .filter((customer) => 
+                      customer.toLowerCase().includes(customerSearch.toLowerCase())
+                    )
+                    .map((customer) => (
+                      <label
+                        key={customer}
+                        className="flex items-center space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer transition-all duration-200"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedCustomers.includes(customer)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCustomers((prev) => [...prev, customer])
+                            } else {
+                              setSelectedCustomers((prev) => prev.filter((c) => c !== customer))
+                            }
+                          }}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white flex-1">
+                          {customer}
+                        </span>
+                      </label>
+                    ))}
+                  
+                  {customers.filter((customer) => 
+                    customer.toLowerCase().includes(customerSearch.toLowerCase())
+                  ).length === 0 && (
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 mx-auto text-gray-400 mb-3">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No customers found</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedCustomers.length} of {customers.length} customers selected
+                </span>
+                <button
+                  onClick={() => setSelectedCustomers([])}
+                  className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                >
+                  Clear All
+                </button>
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setIsCustomerModalOpen(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setIsCustomerModalOpen(false)}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-200 font-medium"
+                >
+                  Apply Filter
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
