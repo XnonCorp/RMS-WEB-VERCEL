@@ -348,6 +348,13 @@ Pastikan semua bekerja dengan baik:
 - Check database schema matches
 - Verify data format in Google Sheets
 
+### ❌ "Synchronous scripts should not be used"
+**Cause**: Bootstrap dan Tabulator.js scripts dimuat secara synchronous
+**Solution**:
+- Script tags sudah diperbaiki dengan menambahkan `async` attribute
+- Commit dan push perubahan terbaru ke GitHub
+- Redeploy di Vercel untuk menggunakan kode terbaru
+
 ### ❌ "Module not found: Can't resolve sync-sheets"
 **Cause**: API route mencoba import Node.js script yang tidak kompatibel dengan Edge runtime
 **Solution**: 

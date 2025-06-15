@@ -78,13 +78,11 @@ export default function Dashboard() {  const [data, setData] = useState<Shipment
       if (error) {
         console.error('Error fetching data:', error)
         return
-      }
-
-      const formattedData = shipmentDetails || []
+      }      const formattedData = shipmentDetails || []
       setData(formattedData)
       setFilteredData(formattedData)      // Calculate stats
-      const uniqueCustomers = [...new Set(formattedData.map(item => item.customer))].filter(Boolean)
-      const uniqueDestinations = [...new Set(formattedData.map(item => item.tujuan))].filter(Boolean)
+      const uniqueCustomers = Array.from(new Set(formattedData.map(item => item.customer))).filter(Boolean)
+      const uniqueDestinations = Array.from(new Set(formattedData.map(item => item.tujuan))).filter(Boolean)
       const totalInvoices = formattedData.filter(item => item.no_invoice).length
 
       setStats({
