@@ -62,6 +62,8 @@ export default function Dashboard() {
   const [dateTo, setDateTo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [customers, setCustomers] = useState<string[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(50)
   // Fetch data from Supabase
   const fetchData = async () => {
     setLoading(true)
@@ -158,7 +160,18 @@ export default function Dashboard() {
     }
 
     setFilteredData(filtered)
+    setCurrentPage(1) // Reset to first page when filters change
   }, [data, selectedCustomer, dateFrom, dateTo, searchTerm])
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredData.length / pageSize)
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const paginatedData = filteredData.slice(startIndex, endIndex)
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
+  }
 
   const exportToCSV = () => {
     const headers = [
@@ -226,19 +239,21 @@ export default function Dashboard() {
       return dateString || '-'
     }
   }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-6">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-              <div className="w-12 h-12 border-4 border-transparent border-t-blue-400 rounded-full animate-spin absolute top-2 left-1/2 transform -translate-x-1/2"></div>
+              <div className="w-20 h-20 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin mx-auto"></div>
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Loading Dashboard...</h3>
-              <p className="text-gray-600 dark:text-gray-400">Fetching latest data from Supabase</p>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Loading Dashboard</h3>
+              <p className="text-gray-600 dark:text-gray-400">Fetching latest data from Supabase...</p>
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-500">
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                <span>This may take a moment for large datasets</span>
+              </div>
             </div>
           </div>
         </div>
@@ -464,8 +479,7 @@ export default function Dashboard() {
         </div>
 
         {/* Data Table */}
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg overflow-hidden">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-600">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg overflow-hidden">          <div className="p-6 border-b border-gray-200 dark:border-gray-600">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg text-white">
@@ -477,8 +491,33 @@ export default function Dashboard() {
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Data Overview</h2>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                  {filteredData.length} records
+                  {filteredData.length} total records
                 </span>
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                  Page {currentPage} of {totalPages}
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Show:</label>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value))
+                      setCurrentPage(1)
+                    }}
+                    className="px-3 py-1.5 border border-gray-200 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm text-gray-900 dark:text-white"
+                  >
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                    <option value={200}>200</option>
+                  </select>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">per page</span>
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredData.length)} of {filteredData.length}
+                </div>
               </div>
             </div>
           </div>
@@ -504,9 +543,9 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
-                {filteredData.map((row, index) => (
+                {paginatedData.map((row, index) => (
                   <tr key={row.id} className="hover:bg-white/30 dark:hover:bg-gray-700/30 transition-colors duration-200">
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{index + 1}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{startIndex + index + 1}</td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{formatDate(row.pick_up)}</td>
                     <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{row.via || '-'}</td>
                     <td className="px-6 py-4 text-sm">
@@ -560,6 +599,84 @@ export default function Dashboard() {
                 ))}
               </tbody>
             </table>
+            
+            {/* Pagination Controls */}
+            {filteredData.length > 0 && totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => goToPage(1)}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      First
+                    </button>
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      <div className="w-5 h-5">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </div>
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
+                      let pageNum
+                      if (totalPages <= 7) {
+                        pageNum = i + 1
+                      } else if (currentPage <= 4) {
+                        pageNum = i + 1
+                      } else if (currentPage >= totalPages - 3) {
+                        pageNum = totalPages - 6 + i
+                      } else {
+                        pageNum = currentPage - 3 + i
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => goToPage(pageNum)}
+                          className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                            currentPage === pageNum
+                              ? 'bg-blue-600 text-white shadow-md'
+                              : 'text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      <div className="w-5 h-5">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => goToPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-700 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    >
+                      Last
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {filteredData.length === 0 && (
               <div className="text-center py-16">
