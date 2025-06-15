@@ -26,11 +26,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-    
-    - name: Install dependencies
+      - name: Install dependencies
       run: |
-        npm install --only=production
+        npm install --omit=dev
         npm install googleapis @supabase/supabase-js
+        npm audit fix --force
     
     - name: Run sync script
       env:

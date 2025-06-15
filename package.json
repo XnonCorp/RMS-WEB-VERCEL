@@ -1,13 +1,14 @@
 {
   "name": "rms-web",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
+  "private": true,  "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync-sheets": "node scripts/sync-sheets.js"
+    "sync-sheets": "node scripts/sync-sheets.js",
+    "audit-fix": "npm audit fix --force",
+    "clean-install": "rm -rf node_modules package-lock.json && npm install"
   },
   "dependencies": {
     "next": "15.0.3",

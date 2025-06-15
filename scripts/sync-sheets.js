@@ -95,17 +95,23 @@ async function syncGoogleSheetsToSupabase() {
     });
 
     const invoiceRows = invoicesResponse.data.values || [];
-    console.log(`Found ${invoiceRows.length} invoice records`);
-
-    const invoiceData = invoiceRows
-      .filter(row => row[4] && row[4] !== '') // Filter by No SP (column F/index 4)
+    console.log(`Found ${invoiceRows.length} invoice records`);    const invoiceData = invoiceRows
+      .filter(row => row[4] && row[4] !== '' && row[4] !== null && row[4].toString().trim() !== '') // Filter by No SP (column F/index 4)
       .map((row, index) => {        try {
+          const no_sp = cleanString(row[4]); // No. SP
+          
+          // Double-check no_sp is not null/empty after cleaning
+          if (!no_sp || no_sp === '') {
+            console.warn(`Skipping invoice row ${index + 5}: no_sp is empty after cleaning`);
+            return null;
+          }
+          
           return {
             no_invoice: cleanString(row[0]), // No. Invoice (column B)
             tanggal_invoice: cleanString(row[1]), // Tanggal Invoice
             nama_customer: cleanString(row[2]), // Nama Customer
             tujuan: cleanString(row[3]), // Tujuan
-            no_sp: cleanString(row[4]), // No. SP
+            no_sp: no_sp, // No. SP (validated)
             tanggal_pick_up: cleanString(row[5]), // Tanggal Pick Up
             keterangan: cleanString(row[6]), // Keterangan
             no_stt: cleanString(row[7]), // No. STT
@@ -115,7 +121,8 @@ async function syncGoogleSheetsToSupabase() {
           return null;
         }
       })
-      .filter(Boolean); // Remove null entries
+      .filter(Boolean) // Remove null entries
+      .filter(item => item.no_sp && item.no_sp !== ''); // Final validation
 
     // 3. Upsert data to Supabase
     console.log('💾 Upserting data to Supabase...');    // Upsert shipments
