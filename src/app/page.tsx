@@ -573,15 +573,10 @@ export default function Dashboard() {
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(row.tanggal_invoice || null)}</td>
-                    <td className="px-3 py-2 text-sm whitespace-nowrap">
+                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(row.tanggal_invoice || null)}</td>                    <td className="px-3 py-2 text-sm whitespace-nowrap">
                       {row.keterangan ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
                           {row.keterangan}
-                        </span>
-                      ) : row.diterima ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                          Diterima
                         </span>
                       ) : row.berangkat ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
