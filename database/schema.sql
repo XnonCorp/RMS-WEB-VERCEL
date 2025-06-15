@@ -1,7 +1,7 @@
 -- Create tables for RMS data
 
--- Drop existing tables if they exist (to fix any type issues)
-DROP TABLE IF EXISTS shipment_details CASCADE;
+-- Drop existing views and tables in correct order
+DROP VIEW IF EXISTS shipment_details CASCADE;
 DROP TABLE IF EXISTS invoices CASCADE;
 DROP TABLE IF EXISTS shipments CASCADE;
 
