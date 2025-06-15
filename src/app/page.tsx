@@ -241,11 +241,35 @@ export default function Dashboard() {
     a.click()
     window.URL.revokeObjectURL(url)
   }
+
   const formatDate = (dateString: string | null): string => {
     if (!dateString || dateString === '' || dateString === '-') return '-'
     
     try {
-      const date = new Date(dateString)
+      let date: Date
+      
+      // Handle different date formats
+      if (dateString.includes('/')) {
+        // Handle DD/MM/YY or DD/MM/YYYY formats
+        const parts = dateString.split('/')
+        if (parts.length === 3) {
+          const day = parseInt(parts[0])
+          const month = parseInt(parts[1]) - 1 // Month is 0-indexed
+          let year = parseInt(parts[2])
+          
+          // Convert 2-digit year to 4-digit year
+          if (year < 100) {
+            year = year < 50 ? 2000 + year : 1900 + year
+          }
+          
+          date = new Date(year, month, day)
+        } else {
+          date = new Date(dateString)
+        }
+      } else {
+        date = new Date(dateString)
+      }
+      
       if (isNaN(date.getTime())) return dateString
       
       // Format: "14 Jun 24"
