@@ -10,7 +10,22 @@ const supabase = createClient(
 // Clean and return string values (no parsing)
 function cleanString(value) {
   if (!value || value === '' || value === '-') return null;
-  return value.toString().trim();
+  const cleaned = value.toString().trim();
+  // Additional safety check for problematic values
+  if (cleaned === 'undefined' || cleaned === 'null') return null;
+  return cleaned;
+}
+
+// Debug function to log problematic data
+function debugData(data, label) {
+  console.log(`🔍 Debugging ${label}:`, {
+    count: data.length,
+    sample: data.slice(0, 3).map(item => ({
+      no_sp: item.no_sp,
+      qty: item.qty,
+      customer: item.customer
+    }))
+  });
 }
 
 async function syncGoogleSheetsToSupabase() {
@@ -103,10 +118,10 @@ async function syncGoogleSheetsToSupabase() {
       .filter(Boolean); // Remove null entries
 
     // 3. Upsert data to Supabase
-    console.log('💾 Upserting data to Supabase...');
-
-    // Upsert shipments
+    console.log('💾 Upserting data to Supabase...');    // Upsert shipments
     if (shipmentData.length > 0) {
+      console.log(`📋 Sample shipment data:`, shipmentData.slice(0, 2));
+      
       const { error: shipmentError } = await supabase
         .from('shipments')
         .upsert(shipmentData, { 
@@ -116,6 +131,7 @@ async function syncGoogleSheetsToSupabase() {
 
       if (shipmentError) {
         console.error('Error upserting shipments:', shipmentError);
+        console.error('Sample problematic data:', shipmentData.slice(0, 5));
         throw shipmentError;
       }
       

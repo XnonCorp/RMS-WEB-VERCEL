@@ -1,45 +1,50 @@
 -- Create tables for RMS data
 
--- 1. Shipments table (data from "2025" sheet)
-CREATE TABLE IF NOT EXISTS shipments (
-  id SERIAL PRIMARY KEY,
-  pick_up VARCHAR(50),
-  no_sj VARCHAR(50),
-  no_sp VARCHAR(50) UNIQUE NOT NULL,
-  customer VARCHAR(255),
-  tujuan VARCHAR(255),
-  via VARCHAR(255),
-  qty VARCHAR(50),
-  berat VARCHAR(50),
-  jenis_barang VARCHAR(255),
-  dikirim_oleh VARCHAR(255),
-  armada VARCHAR(255),
-  ops VARCHAR(255),
-  data_armada VARCHAR(255),
-  berangkat VARCHAR(50),
-  eta VARCHAR(50),
-  diterima VARCHAR(50),
-  penerima VARCHAR(255),
-  qc VARCHAR(255),
-  waktu_diterima VARCHAR(100),
-  no_smu_bl VARCHAR(255),
-  no_flight_countr VARCHAR(255),
-  do_balik VARCHAR(255),
+-- Drop existing tables if they exist (to fix any type issues)
+DROP TABLE IF EXISTS shipment_details CASCADE;
+DROP TABLE IF EXISTS invoices CASCADE;
+DROP TABLE IF EXISTS shipments CASCADE;
+
+-- 1. Shipments table (data from "2025" sheet) - ALL COLUMNS AS VARCHAR
+CREATE TABLE shipments (
+  id BIGSERIAL PRIMARY KEY,
+  pick_up TEXT,
+  no_sj TEXT,
+  no_sp TEXT UNIQUE NOT NULL,
+  customer TEXT,
+  tujuan TEXT,
+  via TEXT,
+  qty TEXT,
+  berat TEXT,
+  jenis_barang TEXT,
+  dikirim_oleh TEXT,
+  armada TEXT,
+  ops TEXT,
+  data_armada TEXT,
+  berangkat TEXT,
+  eta TEXT,
+  diterima TEXT,
+  penerima TEXT,
+  qc TEXT,
+  waktu_diterima TEXT,
+  no_smu_bl TEXT,
+  no_flight_countr TEXT,
+  do_balik TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- 2. Invoices table (data from "INVOICE" sheet)
-CREATE TABLE IF NOT EXISTS invoices (
-  id SERIAL PRIMARY KEY,
-  no_invoice VARCHAR(50),
-  tanggal_invoice VARCHAR(50),
-  nama_customer VARCHAR(255),
-  tujuan VARCHAR(255),
-  no_sp VARCHAR(50) NOT NULL,
-  tanggal_pick_up VARCHAR(50),
+-- 2. Invoices table (data from "INVOICE" sheet) - ALL COLUMNS AS TEXT
+CREATE TABLE invoices (
+  id BIGSERIAL PRIMARY KEY,
+  no_invoice TEXT,
+  tanggal_invoice TEXT,
+  nama_customer TEXT,
+  tujuan TEXT,
+  no_sp TEXT NOT NULL,
+  tanggal_pick_up TEXT,
   keterangan TEXT,
-  no_stt VARCHAR(50),
+  no_stt TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
