@@ -32,11 +32,11 @@ jobs:
       run: |
         npm install --only=production
         npm install googleapis @supabase/supabase-js
-    
-    - name: Run sync script
+      - name: Run sync script
       env:
         GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-        GOOGLE_SHEETS_ID: ${{ secrets.GOOGLE_SHEETS_ID }}
+        GOOGLE_SHEETS_ID_2025: ${{ secrets.GOOGLE_SHEETS_ID_2025 }}
+        GOOGLE_SHEETS_ID_INVOICE: ${{ secrets.GOOGLE_SHEETS_ID_INVOICE }}
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
       run: |

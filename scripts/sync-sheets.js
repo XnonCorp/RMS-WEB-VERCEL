@@ -94,16 +94,19 @@ async function syncGoogleSheetsToSupabase() {
     const auth = new google.auth.GoogleAuth({
       credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY),
       scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
-    });
+    });    const sheets = google.sheets({ version: 'v4', auth });
+    const spreadsheetId2025 = process.env.GOOGLE_SHEETS_ID_2025;
+    const spreadsheetIdInvoice = process.env.GOOGLE_SHEETS_ID_INVOICE;
 
-    const sheets = google.sheets({ version: 'v4', auth });
-    const spreadsheetId = process.env.GOOGLE_SHEETS_ID;
-
-    console.log('📊 Fetching data from Google Sheets...');    // 1. Sync Sheet "2025" to shipments table
+    console.log('📊 Fetching data from Google Sheets...');
+    console.log(`📦 Sheet 2025 ID: ${spreadsheetId2025}`);
+    console.log(`💰 Sheet INVOICE ID: ${spreadsheetIdInvoice}`);
+    
+    // 1. Sync Sheet "2025" to shipments table
     console.log('📦 Processing shipments data...');
     
     const shipmentsResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId,
+      spreadsheetId: spreadsheetId2025,
       range: '2025!A3:W', // Start from row 3, columns A to W (23 columns)
     });
 
@@ -142,11 +145,11 @@ async function syncGoogleSheetsToSupabase() {
           return null;
         }
       })
-      .filter(Boolean); // Remove null entries// 2. Sync Sheet "INVOICE" to invoices table
+      .filter(Boolean); // Remove null entries    // 2. Sync Sheet "INVOICE" to invoices table
     console.log('💰 Processing invoices data...');
     
     const invoicesResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId,
+      spreadsheetId: spreadsheetIdInvoice,
       range: 'INVOICE!B5:I', // Start from row 5, columns B to I (8 columns)
     });
 

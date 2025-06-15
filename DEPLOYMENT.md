@@ -39,6 +39,15 @@ Sebelum mulai, pastikan Anda punya:
    - **"2025"** - untuk data shipments
    - **"INVOICE"** - untuk data invoices
 
+**📋 Contoh Sheets yang Digunakan:**
+- **Sheet 1 (2025)**: https://docs.google.com/spreadsheets/d/1AXQx6Y7wLlVCRHV2VxMY5qx_XBoamvBTO7hIfifzmKY/edit?gid=991457949#gid=991457949
+  - Data dimulai dari **baris ke-3**
+  - Kolom A ("No.") diabaikan, data diambil dari kolom B-W
+  
+- **Sheet 2 (INVOICE)**: https://docs.google.com/spreadsheets/d/1QyM33Xrdqld_BARb2-AHj0o2ODEu4ErPv_ofC_NHuMg/edit?gid=1727765235#gid=1727765235
+  - Data dimulai dari **baris ke-5**
+  - Data diambil dari kolom B-I
+
 ### 2.2 Format Data
 **Sheet "2025" columns (Data starts from row 3, kolom A diabaikan):**
 ```
@@ -55,9 +64,17 @@ F: No. SP | G: Tanggal Pick Up | H: Keterangan | I: No. STT
 ```
 
 ⚠️ **Important**: 
-- Sheet "2025": Data dimulai dari **baris ke-3** (row 3), **kolom A ("No.") diabaikan**
-- Sheet "INVOICE": Data dimulai dari **baris ke-5** (row 5)
-- No SP di sheet "2025" (kolom D) harus sama dengan No SP di sheet "INVOICE" (kolom F)
+- **Sheet "2025"**: Data dimulai dari **baris ke-3** (row 3), **kolom A ("No.") diabaikan**
+- **Sheet "INVOICE"**: Data dimulai dari **baris ke-5** (row 5)
+- **No SP** di sheet "2025" (kolom D) harus sama dengan **No SP** di sheet "INVOICE" (kolom F) untuk join data
+- Script sync akan otomatis mengambil data dari baris yang benar sesuai konfigurasi
+
+**🔗 Data Relationship:**
+```
+Sheet "2025" (Shipments) ←→ Sheet "INVOICE" (Invoices)
+      ↓                           ↓
+   Kolom D (No SP)  =  Kolom F (No SP)
+```
 
 ### 2.3 Get Sheets ID
 Dari URL Google Sheets Anda:
@@ -66,6 +83,12 @@ https://docs.google.com/spreadsheets/d/1ABC123DEF456GHI789/edit
                                     ^^^^^^^^^^^^^^^^^^
                                     Ini Sheets ID Anda
 ```
+
+**📝 Contoh untuk sheets di atas:**
+- **Sheet "2025"**: ID = `1AXQx6Y7wLlVCRHV2VxMY5qx_XBoamvBTO7hIfifzmKY`
+- **Sheet "INVOICE"**: ID = `1QyM33Xrdqld_BARb2-AHj0o2ODEu4ErPv_ofC_NHuMg`
+
+⚠️ **PENTING**: Jika Anda menggunakan sheets berbeda, ganti dengan ID sheets Anda sendiri di GitHub Secrets!
 
 ### 2.4 Create Google Service Account
 
@@ -131,39 +154,62 @@ git push -u origin main
 2. Sidebar kiri → **Secrets and variables** → **Actions**
 3. Click **"New repository secret"** untuk setiap secret berikut:
 
-**Required Secrets (4 secrets wajib):**
+**Required Secrets (6 secrets wajib untuk 2 sheets):**
 
-**Secret 1:**
+**Secret 1 & 2 (Google Sheets IDs):**
 ```
-Name: GOOGLE_SHEETS_ID
-Value: [ID dari URL Google Sheets Anda]
+Name: GOOGLE_SHEETS_ID_2025
+Value: 1AXQx6Y7wLlVCRHV2VxMY5qx_XBoamvBTO7hIfifzmKY
 ```
-*Contoh: Jika URL sheets Anda `https://docs.google.com/spreadsheets/d/1ABC123DEF456GHI789/edit`, maka ID-nya adalah `1ABC123DEF456GHI789`*
+*ID untuk sheet "2025" (shipments data)*
 
-**Secret 2:**
+```
+Name: GOOGLE_SHEETS_ID_INVOICE  
+Value: 1QyM33Xrdqld_BARb2-AHj0o2ODEu4ErPv_ofC_NHuMg
+```
+*ID untuk sheet "INVOICE" (invoice data)*
+
+⚠️ **Jika menggunakan sheets berbeda**, ganti dengan ID sheets Anda:
+- Ambil ID dari URL: `https://docs.google.com/spreadsheets/d/[ID_SHEETS_ANDA]/edit`
+- Pastikan kedua sheets bisa diakses oleh service account yang sama
+
+**Secret 3:**
 ```
 Name: GOOGLE_SERVICE_ACCOUNT_KEY  
 Value: [Seluruh isi file JSON service account]
 ```
 *Copy paste SELURUH isi file JSON yang didownload dari Google Cloud Console, termasuk kurung kurawal {}*
 
-**Secret 3:**
+**Secret 4:**
 ```
 Name: SUPABASE_URL
 Value: https://xxxxx.supabase.co
 ```
 *URL project Supabase Anda dari dashboard*
 
-**Secret 4:**
+**Secret 5:**
 ```
 Name: SUPABASE_SERVICE_KEY
 Value: eyJhbGciOiJIUzI1NiIsInR5cCI6...
 ```
 *Service role key dari Supabase dashboard (bukan anon key!)*
 
+**Secret 6:**
+```
+Name: SUPABASE_ANON_KEY
+Value: eyJhbGciOiJIUzI1NiIsInR5cCI6...
+```
+*Anonymous key dari Supabase dashboard untuk client-side access*
+
 ### 3.3 Verifikasi Secrets
 Setelah menambahkan semua secrets:
-1. Pastikan ada **4 secrets** di list
+1. Pastikan ada **6 secrets** di list:
+   - `GOOGLE_SHEETS_ID_2025`
+   - `GOOGLE_SHEETS_ID_INVOICE`
+   - `GOOGLE_SERVICE_ACCOUNT_KEY`
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_KEY`
+   - `SUPABASE_ANON_KEY`
 2. **Nama secrets harus PERSIS** seperti di atas (case-sensitive)
 3. **Value tidak boleh** ada spasi di awal/akhir
 
