@@ -276,13 +276,9 @@ export default function Dashboard() {
               RMS Dashboard
             </span>
           </div>
-          <div className="space-y-4">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="space-y-4">            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Customer Data Management
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Real-time shipment and invoice tracking with automated Google Sheets synchronization
-            </p>
           </div>
         </div>
 
@@ -523,75 +519,59 @@ export default function Dashboard() {
           </div>
           
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm">
+            <table className="w-full">              <thead className="bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Pick Up</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Pengiriman</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. SP</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. SJ</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Customer</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tujuan</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Qty</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tgl. Diterima</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Penerima</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Dok. Balik</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. Inv</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tgl. Inv</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No</th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tanggal</th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. SP</th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Customer</th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tujuan</th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Invoice</th>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+              </thead>              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                 {paginatedData.map((row, index) => (
                   <tr key={row.id} className="hover:bg-white/30 dark:hover:bg-gray-700/30 transition-colors duration-200">
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{startIndex + index + 1}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{formatDate(row.pick_up)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{row.via || '-'}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className="font-mono font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{startIndex + index + 1}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{formatDate(row.pick_up)}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className="font-mono font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded text-xs">
                         {row.no_sp}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className="font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
-                        {row.no_sj || '-'}
-                      </span>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white max-w-32 truncate" title={row.customer || '-'}>
+                      {row.customer || '-'}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{row.customer || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{row.tujuan || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{row.qty || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(row.diterima)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{row.penerima || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{row.do_balik || '-'}</td>
-                    <td className="px-6 py-4 text-sm">
-                      {row.no_invoice ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                          {row.no_invoice}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                          -
-                        </span>
-                      )}
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 max-w-32 truncate" title={row.tujuan || '-'}>
+                      {row.tujuan || '-'}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(row.tanggal_invoice || null)}</td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-4 py-3 text-sm">
                       {row.keterangan ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
                           {row.keterangan}
                         </span>
                       ) : row.diterima ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                           Diterima
                         </span>
                       ) : row.berangkat ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                          In Transit
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
+                          Transit
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                          Belum Berangkat
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                          Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      {row.no_invoice ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                          ✓ {row.no_invoice}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                          - Belum
                         </span>
                       )}
                     </td>
