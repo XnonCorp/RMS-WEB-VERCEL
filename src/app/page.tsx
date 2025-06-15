@@ -176,9 +176,8 @@ export default function Dashboard() {
     const headers = [
       'Pick Up', 'No SJ', 'No SP', 'Customer', 'Tujuan', 'VIA',
       'QTY', 'Berat', 'Jenis Barang', 'Dikirim Oleh', 'Armada', 'OPS',
-      'Data Armada', 'Berangkat', 'ETA', 'Diterima', 'Penerima', 'QC',
-      'Waktu Diterima', 'No SMU/BL', 'No Flight/Countr', 'DO Balik',
-      'No Invoice', 'Tanggal Invoice', 'Keterangan', 'No STT'
+      'Data Armada', 'Berangkat', 'ETA', 'Diterima', 'Penerima', 'QC',      'Waktu Diterima', 'No SMU/BL', 'No Flight/Countr', 'DO Balik',
+      'No Invoice', 'Tanggal Invoice', 'No STT'
     ]
 
     const csvContent = [
@@ -204,11 +203,9 @@ export default function Dashboard() {
         row.qc || '',
         row.waktu_diterima || '',
         row.no_smu_bl || '',
-        row.no_flight_countr || '',
-        row.do_balik || '',
+        row.no_flight_countr || '',        row.do_balik || '',
         row.no_invoice || '',
         row.tanggal_invoice || '',
-        row.keterangan || '',
         row.no_stt || ''
       ].join(','))
     ].join('\n')
@@ -529,10 +526,8 @@ export default function Dashboard() {
                   <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Qty</th>
                   <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tgl. Diterima</th>
                   <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Penerima</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Dok. Balik</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. Inv</th>
+                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Dok. Balik</th>                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. Inv</th>
                   <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tgl. Inv</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Keterangan/Status</th>
                 </tr>
               </thead>              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                 {paginatedData.map((row, index) => (
@@ -563,8 +558,7 @@ export default function Dashboard() {
                     </td>
                     <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{row.do_balik || '-'}</td>
                     <td className="px-3 py-2 text-sm whitespace-nowrap">
-                      {row.no_invoice ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                      {row.no_invoice ? (                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
                           {row.no_invoice}
                         </span>
                       ) : (
@@ -573,21 +567,7 @@ export default function Dashboard() {
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(row.tanggal_invoice || null)}</td>                    <td className="px-3 py-2 text-sm whitespace-nowrap">
-                      {row.keterangan ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                          {row.keterangan}
-                        </span>
-                      ) : row.berangkat ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-                          In Transit
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                          Belum Berangkat
-                        </span>
-                      )}
-                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(row.tanggal_invoice || null)}</td>
                   </tr>
                 ))}
               </tbody>
