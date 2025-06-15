@@ -187,10 +187,21 @@ export default function Dashboard() {  const [data, setData] = useState<Shipment
       currency: 'IDR'
     }).format(value)
   }
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '-'
-    return new Date(dateString).toLocaleDateString('id-ID')
+  const formatDate = (dateString: string | null): string => {
+    if (!dateString || dateString === '' || dateString === '-') return '-'
+    
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return dateString
+      
+      return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit', 
+        year: 'numeric'
+      })
+    } catch {
+      return dateString || '-'
+    }
   }
 
   if (loading) {
@@ -411,7 +422,7 @@ export default function Dashboard() {  const [data, setData] = useState<Shipment
                         <span className="badge bg-secondary">-</span>
                       )}
                     </td>
-                    <td>{formatDate(row.tanggal_invoice)}</td>
+                    <td>{formatDate(row.tanggal_invoice || null)}</td>
                     <td>
                       {row.keterangan ? (
                         <span className="text-primary">{row.keterangan}</span>
