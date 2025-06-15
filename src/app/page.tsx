@@ -74,11 +74,10 @@ export default function Dashboard() {
       const batchSize = 1000
       let hasMore = true
 
-      while (hasMore) {
-        const { data: shipmentDetails, error } = await supabase
+      while (hasMore) {        const { data: shipmentDetails, error } = await supabase
           .from('shipment_details')
           .select('*')
-          .order('pick_up', { ascending: false })
+          .order('id', { ascending: false })
           .range(from, from + batchSize - 1)
 
         if (error) {
@@ -97,9 +96,15 @@ export default function Dashboard() {
         } else {
           hasMore = false
         }
-      }
-
-      console.log(`Fetched ${allData.length} total records`)
+      }      console.log(`Fetched ${allData.length} total records`)
+      
+      // Sort data by pick_up date (newest first), handle null/empty dates
+      allData.sort((a, b) => {
+        const dateA = a.pick_up ? new Date(a.pick_up).getTime() : 0
+        const dateB = b.pick_up ? new Date(b.pick_up).getTime() : 0
+        return dateB - dateA // Descending order (newest first)
+      })
+      
       setData(allData)
       setFilteredData(allData)
       
