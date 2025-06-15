@@ -153,7 +153,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 # Required for sync (GitHub Secrets)
 SUPABASE_SERVICE_KEY=your-service-key
 GOOGLE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
-GOOGLE_SHEETS_ID=your-sheets-id
+GOOGLE_SHEETS_ID_2025=your-sheets-id-for-2025-sheet
+GOOGLE_SHEETS_ID_INVOICE=your-sheets-id-for-invoice-sheet
 ```
 
 ### Database Schema

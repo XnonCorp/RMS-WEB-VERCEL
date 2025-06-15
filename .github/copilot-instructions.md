@@ -28,7 +28,8 @@ This is a Next.js project with Supabase integration for managing customer shipme
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anonymous key for client-side
 - `SUPABASE_SERVICE_KEY`: Supabase service role key for server-side operations
 - `GOOGLE_SERVICE_ACCOUNT_KEY`: Google service account JSON for Sheets API
-- `GOOGLE_SHEETS_ID`: The ID of the Google Sheets document
+- `GOOGLE_SHEETS_ID_2025`: The ID of the "2025" Google Sheets document
+- `GOOGLE_SHEETS_ID_INVOICE`: The ID of the "INVOICE" Google Sheets document
 
 ## Development Guidelines
 - Use TypeScript for type safety
