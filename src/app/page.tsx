@@ -17,8 +17,8 @@ interface ShipmentDetail {
   customer: string
   tujuan: string
   via: string
-  qty: number
-  berat: number
+  qty: string
+  berat: string
   jenis_barang: string
   dikirim_oleh: string
   armada: string
