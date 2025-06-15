@@ -6,7 +6,14 @@ Panduan lengkap untuk deploy RMS Dashboard tanpa setup lokal sama sekali.
 
 Sebelum mulai, pastikan Anda punya:
 - ✅ Google account (untuk Google Sheets & Cloud Console)
-- ✅ GitHub account  
+- ✅ Gi3. ✅ Build akan berhasil karena environment variables sudah tersedia
+4. Click link untuk membuka website Anda 🎉
+
+**📝 Jika sudah terlanjur deploy tanpa environment variables:**
+1. Buka project di Vercel dashboard
+2. **Settings** → **Environment Variables** → add variables di atas  
+3. **Deployments** → **Redeploy** deployment terakhir
+4. Tunggu build ulang selesaiub account  
 - ✅ Supabase account
 - ✅ Vercel account
 
@@ -30,6 +37,29 @@ Sebelum mulai, pastikan Anda punya:
    - **Project URL**: `https://xxx.supabase.co`
    - **anon public**: `eyJhbGciOiJIUzI1NiIsInR5cCI6...`
    - **service_role**: `eyJhbGciOiJIUzI1NiIsInR5cCI6...` ⚠️ **SECRET**
+
+### 1.4 Security Setup (PENTING!)
+Database schema sudah dilengkapi dengan Row Level Security (RLS) policies:
+
+```sql
+-- Tables sudah enable RLS
+ALTER TABLE shipments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shipment_details ENABLE ROW LEVEL SECURITY;
+
+-- Policy untuk read-only access (aman untuk anon key)
+CREATE POLICY "Public read access" ON shipments FOR SELECT USING (true);
+CREATE POLICY "Public read access" ON invoices FOR SELECT USING (true);
+CREATE POLICY "Public read access" ON shipment_details FOR SELECT USING (true);
+```
+
+**🔒 Mengapa AMAN menggunakan `NEXT_PUBLIC_SUPABASE_ANON_KEY`:**
+- ✅ **RLS enabled**: Data dilindungi oleh Row Level Security policies
+- ✅ **Read-only**: Anon key hanya bisa SELECT, tidak bisa INSERT/UPDATE/DELETE
+- ✅ **Public by design**: Supabase anon key memang dirancang untuk client-side
+- ✅ **No sensitive data exposed**: Semua data sudah dipublikasikan via dashboard
+
+⚠️ **JANGAN PERNAH** gunakan `service_role` key di frontend!
 
 ## 📊 Step 2: Setup Google Sheets
 
@@ -225,11 +255,11 @@ Repository → Settings → Secrets and variables → Actions → Repository sec
 2. Login dengan GitHub account
 3. Click **"New Project"**
 4. **Import** repository `RMS-WEB` Anda
-5. **Deploy** (akan gagal pertama kali, ini normal)
+5. **JANGAN** deploy dulu - set environment variables terlebih dahulu
 
-### 4.2 Add Environment Variables
-1. Di Vercel dashboard, buka project Anda
-2. **Settings** → **Environment Variables**
+### 4.2 Add Environment Variables (SEBELUM Deploy)
+1. Di halaman import project, scroll ke bawah ke section **"Environment Variables"**
+2. Atau klik **"Configure Project"** sebelum deploy
 3. Add variables berikut:
 
 ```bash
@@ -240,9 +270,17 @@ Repository → Settings → Secrets and variables → Actions → Repository sec
 # Value: eyJhbGciOiJIUzI... (anon key dari step 1.3)
 ```
 
-### 4.3 Redeploy
-1. **Deployments** → click **"Redeploy"** pada deployment terakhir
+**🔒 Catatan Keamanan:**
+- ✅ **AMAN**: `NEXT_PUBLIC_` variables akan terlihat di browser (client-side)
+- ✅ **SUPABASE_URL**: Dirancang untuk akses publik
+- ✅ **SUPABASE_ANON_KEY**: Key khusus untuk client-side, dibatasi oleh RLS policies
+- ❌ **JANGAN** gunakan `SUPABASE_SERVICE_KEY` dengan prefix `NEXT_PUBLIC_` (berbahaya!)
+- 🛡️ **Keamanan data** dijamin oleh Row Level Security (RLS) di Supabase, bukan key
+
+### 4.3 Deploy
+1. Setelah environment variables sudah diset, click **"Deploy"**
 2. Tunggu build selesai (~2 menit)
+3. ✅ Build akan berhasil karena environment variables sudah tersedia
 3. Click link untuk membuka website Anda 🎉
 
 ## 🔄 Step 5: Test Automated Sync
@@ -308,8 +346,11 @@ Pastikan semua bekerja dengan baik:
 ### ❌ "Build failed" in Vercel
 **Cause**: Missing environment variables
 **Solution**:
-- Add all required environment variables
-- Redeploy after adding variables
+- Set environment variables SEBELUM deploy pertama kali
+- Jika sudah terlanjur deploy: Settings → Environment Variables → add → Redeploy
+- Pastikan kedua environment variables sudah ada:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ## 🎉 Success!
 
