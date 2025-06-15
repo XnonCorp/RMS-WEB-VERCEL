@@ -96,14 +96,9 @@ export default function Dashboard() {
         } else {
           hasMore = false
         }
-      }      console.log(`Fetched ${allData.length} total records`)
-      
-      // Sort data by pick_up date (newest first), handle null/empty dates
-      allData.sort((a, b) => {
-        const dateA = a.pick_up ? new Date(a.pick_up).getTime() : 0
-        const dateB = b.pick_up ? new Date(b.pick_up).getTime() : 0
-        return dateB - dateA // Descending order (newest first)
-      })
+      }      console.log(`Fetched ${allData.length} total records`)      
+      // Sort by ID descending (newest entries first)
+      allData.sort((a, b) => (b.id || 0) - (a.id || 0))
       
       setData(allData)
       setFilteredData(allData)
