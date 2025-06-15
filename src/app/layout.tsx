@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'RMS Dashboard',
-  description: 'Customer Data Management System',
+  description: 'Real-time shipment and invoice tracking dashboard',
 }
 
 export default function RootLayout({

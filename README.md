@@ -1,6 +1,6 @@
 # RMS Dashboard 🚀
 
-Customer Data Management System with automated Google Sheets synchronization to Supabase database.
+Real-time shipment and invoice tracking dashboard with automated Google Sheets synchronization to Supabase database.
 
 ## ✨ Features
 

@@ -56,7 +56,6 @@ export default function Dashboard() {
     totalCustomers: 0,
     uniqueDestinations: 0
   })
-
   const [loading, setLoading] = useState(true)
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([])
   const [customerSearch, setCustomerSearch] = useState('')
@@ -66,6 +65,30 @@ export default function Dashboard() {
   const [customers, setCustomers] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(50)
+
+  // Load saved customer selection from localStorage on component mount
+  useEffect(() => {
+    const savedCustomers = localStorage.getItem('rms-selected-customers')
+    if (savedCustomers) {
+      try {
+        const parsed = JSON.parse(savedCustomers)
+        if (Array.isArray(parsed)) {
+          setSelectedCustomers(parsed)
+        }
+      } catch (error) {
+        console.error('Error parsing saved customers:', error)
+      }
+    }
+  }, [])
+
+  // Save customer selection to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedCustomers.length > 0) {
+      localStorage.setItem('rms-selected-customers', JSON.stringify(selectedCustomers))
+    } else {
+      localStorage.removeItem('rms-selected-customers')
+    }
+  }, [selectedCustomers])
   // Fetch data from Supabase
   const fetchData = async () => {
     setLoading(true)
@@ -109,24 +132,29 @@ export default function Dashboard() {
       })
       
       setData(allData)
-      setFilteredData(allData)
-        // Calculate stats - normalize customer names
+      setFilteredData(allData)      // Calculate stats - only use customer field, not invoice_customer
       const normalizeCustomerName = (name: string | null): string => {
         if (!name) return ''
         return name.trim().toLowerCase().replace(/\s+/g, ' ')
       }
       
+      // Collect all unique customers ONLY from customer field
+      const customerSet = new Set<string>()
       const customerMap = new Map<string, string>()
+      
       allData.forEach(item => {
-        if (item.customer) {
-          const normalized = normalizeCustomerName(item.customer)
+        if (item.customer && item.customer.trim()) {
+          const trimmed = item.customer.trim()
+          const normalized = normalizeCustomerName(trimmed)
+          
           if (!customerMap.has(normalized)) {
-            customerMap.set(normalized, item.customer.trim())
+            customerMap.set(normalized, trimmed)
+            customerSet.add(trimmed)
           }
         }
       })
       
-      const uniqueCustomers = Array.from(customerMap.values()).sort()
+      const uniqueCustomers = Array.from(customerSet).sort()
       const uniqueDestinations = Array.from(new Set(allData.map((item: ShipmentDetail) => item.tujuan))).filter(Boolean)
       const totalInvoices = allData.filter((item: ShipmentDetail) => item.no_invoice).length
 
@@ -327,7 +355,7 @@ export default function Dashboard() {
             </div>
             <div className="space-y-2">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Loading Dashboard</h3>
-              <p className="text-gray-600 dark:text-gray-400">Fetching latest data from Supabase...</p>
+              <p className="text-gray-600 dark:text-gray-400">Fetching latest data from databases...</p>
               <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-500">
                 <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
                 <span>This may take a moment for large datasets</span>
@@ -353,9 +381,9 @@ export default function Dashboard() {
             <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               RMS Dashboard
             </span>
-          </div>
-          <div className="space-y-4">            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Customer Data Management
+          </div>          <div className="space-y-4">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Shipment & Invoice Dashboard
             </h1>
           </div>
         </div>
@@ -465,8 +493,7 @@ export default function Dashboard() {
               </div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Filters & Search</h2>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">              <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Global Search</label>
                 <div className="relative">
                   <input
@@ -499,7 +526,7 @@ export default function Dashboard() {
                     type="text"
                     placeholder="Search customers..."
                     value={customerSearch}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerSearch(e.target.value)}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                   />
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -513,14 +540,14 @@ export default function Dashboard() {
 
                 {/* Selected Customers Display */}
                 {selectedCustomers.length > 0 && (
-                  <div className="flex flex-wrap gap-1 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">                    {selectedCustomers.map((customer: string) => (
+                  <div className="flex flex-wrap gap-1 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">                    {selectedCustomers.map((customer) => (
                       <span
                         key={customer}
                         className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200"
                       >
                         {customer}
                         <button
-                          onClick={() => setSelectedCustomers((prev: string[]) => prev.filter((c: string) => c !== customer))}
+                          onClick={() => setSelectedCustomers((prev) => prev.filter((c) => c !== customer))}
                           className="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
                         >
                           ×
@@ -538,21 +565,21 @@ export default function Dashboard() {
 
                 {/* Customer Dropdown List */}
                 <div className="max-h-32 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">                  {customers
-                    .filter((customer: string) => 
+                    .filter((customer) => 
                       customer.toLowerCase().includes(customerSearch.toLowerCase()) &&
                       !selectedCustomers.includes(customer)
                     )
                     .slice(0, 10)
-                    .map((customer: string) => (
+                    .map((customer) => (
                       <button
                         key={customer}
-                        onClick={() => setSelectedCustomers((prev: string[]) => [...prev, customer])}
+                        onClick={() => setSelectedCustomers((prev) => [...prev, customer])}
                         className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                       >
                         {customer}
                       </button>
                     ))}
-                  {customers.filter((customer: string) => 
+                  {customers.filter((customer) => 
                     customer.toLowerCase().includes(customerSearch.toLowerCase()) &&
                     !selectedCustomers.includes(customer)
                   ).length === 0 && (
@@ -565,49 +592,96 @@ export default function Dashboard() {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Date From</label>
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateFrom(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
+                  />
+                  {dateFrom && (
+                    <button
+                      onClick={() => setDateFrom('')}
+                      className="px-3 py-3 text-gray-500 hover:text-red-600 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl hover:border-red-300 transition-all duration-200"
+                      title="Clear date from"
+                    >
+                      <div className="w-4 h-4">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </div>
+                    </button>
+                  )}
+                </div>
               </div>
               
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Date To</label>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateTo(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
-                />
+                <div className="flex space-x-2">
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
+                  />
+                  {dateTo && (
+                    <button
+                      onClick={() => setDateTo('')}
+                      className="px-3 py-3 text-gray-500 hover:text-red-600 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl hover:border-red-300 transition-all duration-200"
+                      title="Clear date to"
+                    >
+                      <div className="w-4 h-4">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </div>
+                    </button>
+                  )}                </div>
               </div>
               
               <div className="flex flex-col space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Actions</label>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={exportToCSV}
-                    disabled={filteredData.length === 0}
-                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-xl transition-all duration-200 font-medium disabled:cursor-not-allowed"
-                  >
-                    <div className="w-5 h-5">
-                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                    </div>
-                    <span>Export</span>
-                  </button>
-                  <button
-                    onClick={fetchData}
-                    className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-all duration-200"
-                  >
-                    <div className="w-5 h-5">
-                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </div>
-                  </button>
+                <div className="flex flex-col space-y-2">
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={exportToCSV}
+                      disabled={filteredData.length === 0}
+                      className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-xl transition-all duration-200 font-medium disabled:cursor-not-allowed"
+                    >
+                      <div className="w-5 h-5">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                      </div>
+                      <span>Export</span>
+                    </button>
+                    <button
+                      onClick={fetchData}
+                      className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-all duration-200"
+                    >
+                      <div className="w-5 h-5">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </div>
+                    </button>
+                  </div>
+                  {(dateFrom || dateTo) && (
+                    <button
+                      onClick={() => {
+                        setDateFrom('')
+                        setDateTo('')
+                      }}
+                      className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg transition-all duration-200 font-medium text-sm"
+                    >
+                      <div className="w-4 h-4">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </div>
+                      <span>Clear All Dates</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
