@@ -7,77 +7,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-// Parse date from various formats
-function parseDate(dateStr) {
-  if (!dateStr || dateStr === '' || dateStr === '-') return null;
-  
-  try {
-    // Handle Excel serial date numbers
-    if (!isNaN(dateStr) && dateStr > 40000) {
-      const excelEpoch = new Date(1900, 0, 1);
-      const days = parseInt(dateStr) - 2; // Excel bug: treats 1900 as leap year
-      const date = new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000);
-      return date.toISOString().split('T')[0];
-    }
-    
-    // Handle various date formats
-    let date;
-    if (dateStr.includes('/')) {
-      const parts = dateStr.split('/');
-      if (parts.length === 3) {
-        // Handle MM/DD/YYYY or DD/MM/YYYY
-        date = new Date(parts[2], parts[1] - 1, parts[0]);
-        if (isNaN(date.getTime())) {
-          date = new Date(parts[2], parts[0] - 1, parts[1]);
-        }
-      }
-    } else if (dateStr.includes('-')) {
-      date = new Date(dateStr);
-    } else {
-      date = new Date(dateStr);
-    }
-    
-    return isNaN(date.getTime()) ? null : date.toISOString().split('T')[0];
-  } catch (error) {
-    console.log(`Error parsing date: ${dateStr}`, error);
-    return null;
-  }
-}
-
-// Parse datetime from various formats
-function parseDateTime(dateTimeStr) {
-  if (!dateTimeStr || dateTimeStr === '' || dateTimeStr === '-') return null;
-  
-  try {
-    // Handle Excel serial date numbers with time
-    if (!isNaN(dateTimeStr) && dateTimeStr > 40000) {
-      const excelEpoch = new Date(1900, 0, 1);
-      const days = Math.floor(dateTimeStr) - 2; // Excel bug: treats 1900 as leap year
-      const timeFraction = dateTimeStr - Math.floor(dateTimeStr);
-      const milliseconds = timeFraction * 24 * 60 * 60 * 1000;
-      
-      const date = new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000 + milliseconds);
-      return date.toISOString();
-    }
-    
-    // Handle various datetime formats
-    const date = new Date(dateTimeStr);
-    return isNaN(date.getTime()) ? null : date.toISOString();
-  } catch (error) {
-    console.log(`Error parsing datetime: ${dateTimeStr}`, error);
-    return null;
-  }
-}
-
-// Parse numeric values
-function parseNumber(value) {
-  if (!value || value === '' || value === '-') return 0;
-  
-  // Remove currency symbols and formatting
-  const cleanValue = value.toString().replace(/[^\d.-]/g, '');
-  const parsed = parseFloat(cleanValue);
-  
-  return isNaN(parsed) ? 0 : parsed;
+// Clean and return string values (no parsing)
+function cleanString(value) {
+  if (!value || value === '' || value === '-') return null;
+  return value.toString().trim();
 }
 
 // Clean string values
@@ -113,29 +46,28 @@ async function syncGoogleSheetsToSupabase() {
     const shipmentRows = shipmentsResponse.data.values || [];
     console.log(`Found ${shipmentRows.length} shipment records`);    const shipmentData = shipmentRows
       .filter(row => row[3] && row[3] !== '') // Filter by No SP (kolom D/index 3)
-      .map((row, index) => {
-        try {
+      .map((row, index) => {        try {
           return {
             // Skip kolom A (No.) - mulai dari kolom B
-            pick_up: parseDate(row[1]), // Pick Up (kolom B)
+            pick_up: cleanString(row[1]), // Pick Up (kolom B)
             no_sj: cleanString(row[2]), // No SJ (kolom C)
             no_sp: cleanString(row[3]), // No SP (kolom D)
             customer: cleanString(row[4]), // Customer (kolom E)
             tujuan: cleanString(row[5]), // Tujuan (kolom F)
             via: cleanString(row[6]), // VIA (kolom G)
-            qty: parseNumber(row[7]), // QTY (kolom H)
-            berat: parseNumber(row[8]), // Berat (kolom I)
+            qty: cleanString(row[7]), // QTY (kolom H)
+            berat: cleanString(row[8]), // Berat (kolom I)
             jenis_barang: cleanString(row[9]), // Jenis Barang (kolom J)
             dikirim_oleh: cleanString(row[10]), // Dikirim Oleh (kolom K)
             armada: cleanString(row[11]), // Armada (kolom L)
             ops: cleanString(row[12]), // OPS (kolom M)
             data_armada: cleanString(row[13]), // Data armada (kolom N)
-            berangkat: parseDate(row[14]), // Berangkat (kolom O)
-            eta: parseDate(row[15]), // ETA (kolom P)
-            diterima: parseDate(row[16]), // Diterima (kolom Q)
+            berangkat: cleanString(row[14]), // Berangkat (kolom O)
+            eta: cleanString(row[15]), // ETA (kolom P)
+            diterima: cleanString(row[16]), // Diterima (kolom Q)
             penerima: cleanString(row[17]), // Penerima (kolom R)
             qc: cleanString(row[18]), // QC (kolom S)
-            waktu_diterima: parseDateTime(row[19]), // Waktu Diterima (kolom T)
+            waktu_diterima: cleanString(row[19]), // Waktu Diterima (kolom T)
             no_smu_bl: cleanString(row[20]), // No SMU / No BL (kolom U)
             no_flight_countr: cleanString(row[21]), // No Flight / No Countr (kolom V)
             do_balik: cleanString(row[22]), // DO Balik (kolom W)
@@ -158,15 +90,14 @@ async function syncGoogleSheetsToSupabase() {
 
     const invoiceData = invoiceRows
       .filter(row => row[4] && row[4] !== '') // Filter by No SP (column F/index 4)
-      .map((row, index) => {
-        try {
+      .map((row, index) => {        try {
           return {
             no_invoice: cleanString(row[0]), // No. Invoice (column B)
-            tanggal_invoice: parseDate(row[1]), // Tanggal Invoice
+            tanggal_invoice: cleanString(row[1]), // Tanggal Invoice
             nama_customer: cleanString(row[2]), // Nama Customer
             tujuan: cleanString(row[3]), // Tujuan
             no_sp: cleanString(row[4]), // No. SP
-            tanggal_pick_up: parseDate(row[5]), // Tanggal Pick Up
+            tanggal_pick_up: cleanString(row[5]), // Tanggal Pick Up
             keterangan: cleanString(row[6]), // Keterangan
             no_stt: cleanString(row[7]), // No. STT
           };

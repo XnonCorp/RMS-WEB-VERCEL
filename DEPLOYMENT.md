@@ -348,6 +348,13 @@ Pastikan semua bekerja dengan baik:
 - Check database schema matches
 - Verify data format in Google Sheets
 
+### ❌ "Dependencies lock file is not found" in GitHub Actions
+**Cause**: GitHub Actions mencoba menggunakan npm cache tapi tidak ada package-lock.json
+**Solution**:
+- File workflow sudah diperbaiki - menghapus `cache: 'npm'` 
+- Workflow akan install dependencies tanpa caching
+- Tidak mempengaruhi functionality, hanya sedikit lebih lambat
+
 ### ❌ "Synchronous scripts should not be used"
 **Cause**: Bootstrap dan Tabulator.js scripts dimuat secara synchronous
 **Solution**:

@@ -6,8 +6,8 @@ export interface ShipmentData {
   customer: string | null
   tujuan: string | null
   via: string | null
-  qty: number
-  berat: number
+  qty: string | null
+  berat: string | null
   jenis_barang: string | null
   dikirim_oleh: string | null
   armada: string | null
