@@ -375,44 +375,35 @@ export default function Dashboard() {  const [data, setData] = useState<Shipment
           <div className="table-responsive">
             <table className="table table-hover">              <thead className="table-light">
                 <tr>
-                  <th>No SP</th>
+                  <th>No</th>
                   <th>Pick Up</th>
+                  <th>Pengiriman</th>
+                  <th>No. SP</th>
+                  <th>No. SJ</th>
                   <th>Customer</th>
                   <th>Tujuan</th>
-                  <th>VIA</th>
-                  <th>No SJ</th>
-                  <th>Jenis Barang</th>
-                  <th>QTY</th>
-                  <th>Berat (kg)</th>
-                  <th>Dikirim Oleh</th>
-                  <th>Armada</th>
-                  <th>Status</th>
-                  <th>No Invoice</th>
+                  <th>Qty</th>
+                  <th>Tgl. Diterima</th>
                   <th>Penerima</th>
+                  <th>Dok. Balik</th>
+                  <th>No. Inv</th>
+                  <th>Tgl. Inv</th>
+                  <th>Keterangan/Status</th>
                 </tr>
               </thead>              <tbody>
-                {filteredData.map((row) => (
+                {filteredData.map((row, index) => (
                   <tr key={row.id}>
-                    <td><strong>{row.no_sp}</strong></td>
+                    <td>{index + 1}</td>
                     <td>{formatDate(row.pick_up)}</td>
+                    <td>{row.via}</td>
+                    <td><strong>{row.no_sp}</strong></td>
+                    <td><code>{row.no_sj}</code></td>
                     <td>{row.customer}</td>
                     <td>{row.tujuan}</td>
-                    <td>{row.via}</td>
-                    <td><code>{row.no_sj}</code></td>
-                    <td>{row.jenis_barang}</td>
                     <td>{row.qty}</td>
-                    <td>{row.berat}</td>
-                    <td>{row.dikirim_oleh}</td>
-                    <td>{row.armada}</td>
-                    <td>
-                      {row.diterima ? (
-                        <span className="badge bg-success">Diterima</span>
-                      ) : row.berangkat ? (
-                        <span className="badge bg-warning">In Transit</span>
-                      ) : (
-                        <span className="badge bg-secondary">Belum Berangkat</span>
-                      )}
-                    </td>
+                    <td>{formatDate(row.diterima)}</td>
+                    <td>{row.penerima || '-'}</td>
+                    <td>{row.do_balik || '-'}</td>
                     <td>
                       {row.no_invoice ? (
                         <span className="badge bg-success">{row.no_invoice}</span>
@@ -420,7 +411,18 @@ export default function Dashboard() {  const [data, setData] = useState<Shipment
                         <span className="badge bg-secondary">-</span>
                       )}
                     </td>
-                    <td>{row.penerima || '-'}</td>
+                    <td>{formatDate(row.tanggal_invoice)}</td>
+                    <td>
+                      {row.keterangan ? (
+                        <span className="text-primary">{row.keterangan}</span>
+                      ) : row.diterima ? (
+                        <span className="badge bg-success">Diterima</span>
+                      ) : row.berangkat ? (
+                        <span className="badge bg-warning">In Transit</span>
+                      ) : (
+                        <span className="badge bg-secondary">Belum Berangkat</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
