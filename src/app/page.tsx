@@ -221,8 +221,7 @@ export default function Dashboard() {
         row.waktu_diterima || '',
         row.no_smu_bl || '',
         row.no_flight_countr || '',        row.do_balik || '',
-        row.no_invoice || '',
-        row.tanggal_invoice || '',
+        row.no_invoice || '',        row.tanggal_invoice || '',
         row.no_stt || ''
       ].join(','))
     ].join('\n')
@@ -231,7 +230,14 @@ export default function Dashboard() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `rms-data-${new Date().toISOString().split('T')[0]}.csv`
+    // Format filename date as "14-Jun-24" for better readability
+    const now = new Date()
+    const day = now.getDate().toString().padStart(2, '0')
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const month = monthNames[now.getMonth()]
+    const year = now.getFullYear().toString().slice(-2)
+    a.download = `rms-data-${day}-${month}-${year}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
   }
