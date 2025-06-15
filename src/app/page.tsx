@@ -887,9 +887,8 @@ export default function Dashboard() {
         <div 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setIsCustomerModalOpen(false)}
-        >
-          <div 
-            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-h-[85vh] flex flex-col transition-all duration-300 ${
+        >          <div 
+            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full h-[85vh] flex flex-col transition-all duration-300 ${
               selectedCustomers.length > 1 ? 'max-w-4xl' : 'max-w-md'
             }`}
             onClick={(e) => e.stopPropagation()}
@@ -915,9 +914,8 @@ export default function Dashboard() {
             </div>
 
             {/* Modal Body */}
-            <div className={`flex-1 overflow-hidden ${selectedCustomers.length > 1 ? 'flex' : 'flex flex-col'}`}>
-              {/* Left Panel - Search and Customer List */}
-              <div className={`${selectedCustomers.length > 1 ? 'flex-1 border-r border-gray-200 dark:border-gray-600' : 'flex-1'} flex flex-col`}>
+            <div className={`flex-1 overflow-hidden ${selectedCustomers.length > 1 ? 'flex' : 'flex flex-col'}`}>              {/* Left Panel - Search and Customer List */}
+              <div className={`${selectedCustomers.length > 1 ? 'flex-1 border-r border-gray-200 dark:border-gray-600' : 'flex-1'} flex flex-col min-h-0`}>
                 {/* Search Input */}
                 <div className="p-4 border-b border-gray-200 dark:border-gray-600">
                   <div className="relative">
@@ -934,7 +932,7 @@ export default function Dashboard() {
                     </svg>
                   </div>
                 </div>                {/* Customer List */}
-                <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="flex-1 overflow-y-scroll min-h-0 max-h-full">
                   <div className="p-2 space-y-1">
                     {customers
                       .filter((customer) => 
