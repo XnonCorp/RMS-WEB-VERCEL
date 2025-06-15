@@ -142,20 +142,37 @@ export default function Dashboard() {
     }
     if (dateTo) {
       filtered = filtered.filter(item => item.pick_up && new Date(item.pick_up) <= new Date(dateTo))
-    }
-
-    // Search filter
+    }    // Search filter with multiple terms support
     if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(item =>        item.no_sp?.toLowerCase().includes(term) ||
-        item.customer?.toLowerCase().includes(term) ||
-        item.tujuan?.toLowerCase().includes(term) ||
-        item.berangkat?.toLowerCase().includes(term) ||
-        item.jenis_barang?.toLowerCase().includes(term) ||
-        item.no_invoice?.toLowerCase().includes(term) ||
-        item.no_sj?.toLowerCase().includes(term) ||
-        item.penerima?.toLowerCase().includes(term)
-      )
+      // Split search terms by separator (comma, semicolon, or pipe)
+      const searchTerms = searchTerm
+        .split(/[,;|]/)
+        .map((term: string) => term.trim().toLowerCase())
+        .filter((term: string) => term.length > 0)
+      
+      if (searchTerms.length > 0) {
+        filtered = filtered.filter(item => {
+          // Check if ANY of the search terms matches ANY of the searchable fields
+          return searchTerms.some((term: string) => 
+            item.no_sp?.toLowerCase().includes(term) ||
+            item.customer?.toLowerCase().includes(term) ||
+            item.tujuan?.toLowerCase().includes(term) ||
+            item.berangkat?.toLowerCase().includes(term) ||
+            item.jenis_barang?.toLowerCase().includes(term) ||
+            item.no_invoice?.toLowerCase().includes(term) ||
+            item.no_sj?.toLowerCase().includes(term) ||
+            item.penerima?.toLowerCase().includes(term) ||
+            item.via?.toLowerCase().includes(term) ||
+            item.armada?.toLowerCase().includes(term) ||
+            item.ops?.toLowerCase().includes(term) ||
+            item.qc?.toLowerCase().includes(term) ||
+            item.no_smu_bl?.toLowerCase().includes(term) ||
+            item.no_flight_countr?.toLowerCase().includes(term) ||
+            item.do_balik?.toLowerCase().includes(term) ||
+            item.no_stt?.toLowerCase().includes(term)
+          )
+        })
+      }
     }
 
     setFilteredData(filtered)
@@ -218,7 +235,6 @@ export default function Dashboard() {
     a.click()
     window.URL.revokeObjectURL(url)
   }
-
   const formatDate = (dateString: string | null): string => {
     if (!dateString || dateString === '' || dateString === '-') return '-'
     
@@ -226,11 +242,14 @@ export default function Dashboard() {
       const date = new Date(dateString)
       if (isNaN(date.getTime())) return dateString
       
-      return date.toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: '2-digit', 
-        year: 'numeric'
-      })
+      // Format: "14 Jun 24"
+      const day = date.getDate().toString().padStart(2, '0')
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const month = monthNames[date.getMonth()]
+      const year = date.getFullYear().toString().slice(-2) // Last 2 digits of year
+      
+      return `${day} ${month} ${year}`
     } catch {
       return dateString || '-'
     }
@@ -384,13 +403,12 @@ export default function Dashboard() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Filters & Search</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">              <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Global Search</label>
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search all data..."
+                    placeholder="Search multiple terms: customer1, SP123; tujuan | armada"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
@@ -403,6 +421,11 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Use <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">comma</span>, 
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded mx-1">semicolon</span>, or 
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">pipe</span> to search multiple terms
+                </p>
               </div>
               
               <div className="space-y-2">
