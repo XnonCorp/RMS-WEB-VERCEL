@@ -348,15 +348,19 @@ Pastikan semua bekerja dengan baik:
 - Check database schema matches
 - Verify data format in Google Sheets
 
-### ❌ "Environment Variable references Secret which does not exist"
-**Cause**: File `vercel.json` menggunakan format lama dengan `@secret-name`
+### ❌ "Module not found: Can't resolve sync-sheets"
+**Cause**: API route mencoba import Node.js script yang tidak kompatibel dengan Edge runtime
 **Solution**: 
-- File `vercel.json` sudah diperbaiki untuk tidak mereferensikan secrets
-- Environment variables diset langsung di Vercel dashboard, bukan sebagai secrets
-- Jika masih error, hapus semua environment variables di Vercel dan set ulang:
-  - `NEXT_PUBLIC_SUPABASE_URL` = `https://xxx.supabase.co`
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `eyJhbGci...`
-- Redeploy setelah environment variables diset dengan benar
+- File API route sudah dihapus (tidak diperlukan)
+- Sync dilakukan via GitHub Actions, bukan API route
+- Jika masih ada file `src/app/api/sync/route.ts`, hapus folder `src/app/api/sync/`
+
+### ❌ "Invalid next.config.js options: appDir"
+**Cause**: Opsi `appDir` sudah deprecated di Next.js 14
+**Solution**:
+- File `next.config.js` sudah diperbaiki
+- Opsi `experimental.appDir` sudah dihapus
+- Environment variables sudah disesuaikan dengan `NEXT_PUBLIC_` prefix
 
 ## 🎉 Success!
 

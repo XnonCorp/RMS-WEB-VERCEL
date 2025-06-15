@@ -41,9 +41,11 @@ Google Sheets → GitHub Actions → Supabase → Next.js Frontend → Vercel
 1. Fork this repository
 2. Add the following secrets in GitHub Settings → Secrets:
    - `GOOGLE_SERVICE_ACCOUNT_KEY`: Your service account JSON (as string)
-   - `GOOGLE_SHEETS_ID`: Your Google Sheets document ID
+   - `GOOGLE_SHEETS_ID_2025`: Your "2025" sheet document ID
+   - `GOOGLE_SHEETS_ID_INVOICE`: Your "INVOICE" sheet document ID
    - `SUPABASE_URL`: Your Supabase project URL
    - `SUPABASE_SERVICE_KEY`: Your Supabase service role key
+   - `SUPABASE_ANON_KEY`: Your Supabase anonymous key
 
 ## 🚀 Deployment (100% Cloud-based)
 
