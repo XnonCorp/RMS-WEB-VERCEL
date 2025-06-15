@@ -516,7 +516,7 @@ export default function Dashboard() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(row.tanggal_invoice)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{formatDate(row.tanggal_invoice || null)}</td>
                     <td className="px-6 py-4 text-sm">
                       {row.keterangan ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
