@@ -56,8 +56,10 @@ export default function Dashboard() {
     totalCustomers: 0,
     uniqueDestinations: 0
   })
+
   const [loading, setLoading] = useState(true)
-  const [selectedCustomer, setSelectedCustomer] = useState('')
+  const [selectedCustomers, setSelectedCustomers] = useState<string[]>([])
+  const [customerSearch, setCustomerSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
@@ -108,9 +110,23 @@ export default function Dashboard() {
       
       setData(allData)
       setFilteredData(allData)
+        // Calculate stats - normalize customer names
+      const normalizeCustomerName = (name: string | null): string => {
+        if (!name) return ''
+        return name.trim().toLowerCase().replace(/\s+/g, ' ')
+      }
       
-      // Calculate stats
-      const uniqueCustomers = Array.from(new Set(allData.map((item: ShipmentDetail) => item.customer))).filter(Boolean)
+      const customerMap = new Map<string, string>()
+      allData.forEach(item => {
+        if (item.customer) {
+          const normalized = normalizeCustomerName(item.customer)
+          if (!customerMap.has(normalized)) {
+            customerMap.set(normalized, item.customer.trim())
+          }
+        }
+      })
+      
+      const uniqueCustomers = Array.from(customerMap.values()).sort()
       const uniqueDestinations = Array.from(new Set(allData.map((item: ShipmentDetail) => item.tujuan))).filter(Boolean)
       const totalInvoices = allData.filter((item: ShipmentDetail) => item.no_invoice).length
 
@@ -132,23 +148,34 @@ export default function Dashboard() {
   useEffect(() => {
     fetchData()
   }, [])
+  // Helper function to normalize customer names
+  const normalizeCustomerName = (name: string | null): string => {
+    if (!name) return ''
+    return name.trim().toLowerCase().replace(/\s+/g, ' ')
+  }
 
   // Filter data based on selected filters
   useEffect(() => {
     let filtered = [...data]
 
-    // Filter by customer
-    if (selectedCustomer) {
-      filtered = filtered.filter(item => item.customer === selectedCustomer)
+    // Filter by multiple customers
+    if (selectedCustomers.length > 0) {
+      filtered = filtered.filter(item => {
+        if (!item.customer) return false
+        const normalizedItemCustomer = normalizeCustomerName(item.customer)
+        return selectedCustomers.some((selectedCustomer: string) => 
+          normalizeCustomerName(selectedCustomer) === normalizedItemCustomer
+        )
+      })
     }
 
-    // Filter by date range
+    // Filter by pickup date range
     if (dateFrom) {
       filtered = filtered.filter(item => item.pick_up && new Date(item.pick_up) >= new Date(dateFrom))
     }
     if (dateTo) {
       filtered = filtered.filter(item => item.pick_up && new Date(item.pick_up) <= new Date(dateTo))
-    }    // Search filter with multiple terms support
+    }// Search filter with multiple terms support
     if (searchTerm) {
       // Split search terms by separator (comma, semicolon, or pipe)
       const searchTerms = searchTerm
@@ -183,7 +210,7 @@ export default function Dashboard() {
 
     setFilteredData(filtered)
     setCurrentPage(1) // Reset to first page when filters change
-  }, [data, selectedCustomer, dateFrom, dateTo, searchTerm])
+  }, [data, selectedCustomers, dateFrom, dateTo, searchTerm])
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredData.length / pageSize)
@@ -463,37 +490,95 @@ export default function Dashboard() {
                   <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">pipe</span> to search multiple terms
                 </p>
               </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Customer</label>
-                <select
-                  value={selectedCustomer}
-                  onChange={(e) => setSelectedCustomer(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
-                >
-                  <option value="">All Customers</option>
-                  {customers.map(customer => (
-                    <option key={customer} value={customer}>{customer}</option>
-                  ))}
-                </select>
+                <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Customers ({selectedCustomers.length} selected)</label>
+                
+                {/* Customer Search Input */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search customers..."
+                    value={customerSearch}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomerSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <div className="w-4 h-4">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Selected Customers Display */}
+                {selectedCustomers.length > 0 && (
+                  <div className="flex flex-wrap gap-1 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">                    {selectedCustomers.map((customer: string) => (
+                      <span
+                        key={customer}
+                        className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200"
+                      >
+                        {customer}
+                        <button
+                          onClick={() => setSelectedCustomers((prev: string[]) => prev.filter((c: string) => c !== customer))}
+                          className="ml-1 text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    <button
+                      onClick={() => setSelectedCustomers([])}
+                      className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100 font-medium"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                )}
+
+                {/* Customer Dropdown List */}
+                <div className="max-h-32 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">                  {customers
+                    .filter((customer: string) => 
+                      customer.toLowerCase().includes(customerSearch.toLowerCase()) &&
+                      !selectedCustomers.includes(customer)
+                    )
+                    .slice(0, 10)
+                    .map((customer: string) => (
+                      <button
+                        key={customer}
+                        onClick={() => setSelectedCustomers((prev: string[]) => [...prev, customer])}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                      >
+                        {customer}
+                      </button>
+                    ))}
+                  {customers.filter((customer: string) => 
+                    customer.toLowerCase().includes(customerSearch.toLowerCase()) &&
+                    !selectedCustomers.includes(customer)
+                  ).length === 0 && (
+                    <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+                      {customerSearch ? 'No customers found' : 'All customers selected'}
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">From Date</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Date From</label>
                 <input
                   type="date"
                   value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateFrom(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
                 />
               </div>
               
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">To Date</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Pickup Date To</label>
                 <input
                   type="date"
                   value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDateTo(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 dark:text-white"
                 />
               </div>
@@ -574,12 +659,8 @@ export default function Dashboard() {
           </div>            <div className="overflow-x-auto shadow-xl rounded-xl border border-gray-200 dark:border-gray-600">
             <table className="w-full min-w-max bg-white dark:bg-gray-800">
               <thead className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-700 dark:to-gray-600">
-                <tr>
-                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">
-                    <div className="flex items-center space-x-2">
-                      <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs">#</span>
-                      <span>No</span>
-                    </div>
+                <tr>                  <th className="px-3 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500 w-16">
+                    No
                   </th>
                   <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Pick Up</th>
                   <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Berangkat</th>
@@ -597,14 +678,9 @@ export default function Dashboard() {
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
                 {paginatedData.map((row, index) => (
-                  <tr key={`${row.id}-${currentPage}-${index}`} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 group">
-                    <td className="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white border-r border-gray-100 dark:border-gray-700">
-                      <div className="flex items-center space-x-2">
-                        <span className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-                          {startIndex + index + 1}
-                        </span>
-                      </div>
-                    </td>                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-100 dark:border-gray-700">
+                  <tr key={`${row.id}-${currentPage}-${index}`} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 group">                    <td className="px-3 py-3 text-xs text-gray-500 dark:text-gray-400 border-r border-gray-100 dark:border-gray-700 w-16 text-center">
+                      {startIndex + index + 1}
+                    </td><td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-100 dark:border-gray-700">
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
                         <span className="font-semibold">{formatDate(row.pick_up)}</span>
