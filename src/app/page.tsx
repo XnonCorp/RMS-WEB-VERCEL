@@ -97,8 +97,14 @@ export default function Dashboard() {
           hasMore = false
         }
       }      console.log(`Fetched ${allData.length} total records`)      
-      // Sort by ID descending (newest entries first)
-      allData.sort((a, b) => (b.id || 0) - (a.id || 0))
+      // Sort by ID ascending for consistent ordering (oldest first, but stable)
+      allData.sort((a, b) => {
+        const idA = a.id || 0
+        const idB = b.id || 0
+        if (idA !== idB) return idA - idB
+        // Secondary sort by no_sp for stability
+        return (a.no_sp || '').localeCompare(b.no_sp || '')
+      })
       
       setData(allData)
       setFilteredData(allData)
@@ -565,62 +571,103 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-          </div>
-            <div className="overflow-x-auto">
-            <table className="w-full min-w-max">              <thead className="bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm">
+          </div>            <div className="overflow-x-auto shadow-xl rounded-xl border border-gray-200 dark:border-gray-600">
+            <table className="w-full min-w-max bg-white dark:bg-gray-800">
+              <thead className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-700 dark:to-gray-600">
                 <tr>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Pick Up</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Berangkat</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. SP</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. SJ</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Customer</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tujuan</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Qty</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tgl. Diterima</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Penerima</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Dok. Balik</th>                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">No. Inv</th>
-                  <th className="px-3 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Tgl. Inv</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center text-xs">#</span>
+                      <span>No</span>
+                    </div>
+                  </th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Pick Up</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Berangkat</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">No. SP</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">No. SJ</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Customer</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Tujuan</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Qty</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Tgl. Diterima</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Penerima</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">Dok. Balik</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 dark:border-gray-500">No. Inv</th>
+                  <th className="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Tgl. Inv</th>
                 </tr>
-              </thead>              <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
                 {paginatedData.map((row, index) => (
-                  <tr key={row.id} className="hover:bg-white/30 dark:hover:bg-gray-700/30 transition-colors duration-200">
-                    <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">{startIndex + index + 1}</td>
-                    <td className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">{formatDate(row.pick_up)}</td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(row.berangkat)}</td>
-                    <td className="px-3 py-2 text-sm whitespace-nowrap">
-                      <span className="font-mono font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded text-xs">
+                  <tr key={`${row.id}-${currentPage}-${index}`} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-200 group">
+                    <td className="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white border-r border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center space-x-2">
+                        <span className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                          {startIndex + index + 1}
+                        </span>
+                      </div>
+                    </td>                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white border-r border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span className="font-semibold">{formatDate(row.pick_up)}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-100 dark:border-gray-700">
+                      <span className="font-medium">{formatDate(row.berangkat)}</span>
+                    </td>
+                    <td className="px-4 py-3 text-sm border-r border-gray-100 dark:border-gray-700">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm">
                         {row.no_sp}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-sm whitespace-nowrap">
-                      <span className="font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
+                    <td className="px-4 py-3 text-sm border-r border-gray-100 dark:border-gray-700">
+                      <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                         {row.no_sj || '-'}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-white max-w-32 truncate" title={row.customer || '-'}>
-                      {row.customer || '-'}
+                    <td className="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white border-r border-gray-100 dark:border-gray-700 max-w-40">
+                      <div className="truncate" title={row.customer || '-'}>
+                        {row.customer || '-'}
+                      </div>
                     </td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 max-w-32 truncate" title={row.tujuan || '-'}>
-                      {row.tujuan || '-'}
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-100 dark:border-gray-700 max-w-36">
+                      <div className="truncate" title={row.tujuan || '-'}>
+                        {row.tujuan || '-'}
+                      </div>
                     </td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{row.qty || '-'}</td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(row.diterima)}</td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 max-w-28 truncate" title={row.penerima || '-'}>
-                      {row.penerima || '-'}
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-100 dark:border-gray-700">
+                      <span className="font-medium">{row.qty || '-'}</span>
+                    </td>                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                        <span className="font-medium">{formatDate(row.diterima)}</span>
+                      </div>
                     </td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{row.do_balik || '-'}</td>
-                    <td className="px-3 py-2 text-sm whitespace-nowrap">
-                      {row.no_invoice ? (                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-100 dark:border-gray-700 max-w-32">
+                      <div className="truncate font-medium" title={row.penerima || '-'}>
+                        {row.penerima || '-'}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 border-r border-gray-100 dark:border-gray-700">
+                      <span className="font-medium">{row.do_balik || '-'}</span>
+                    </td>
+                    <td className="px-4 py-3 text-sm border-r border-gray-100 dark:border-gray-700">
+                      {row.no_invoice ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-sm">
+                          <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
                           {row.no_invoice}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                          -
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-gray-300">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                          No Invoice
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">{formatDate(row.tanggal_invoice || null)}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <span className="font-medium">{formatDate(row.tanggal_invoice || null)}</span>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
