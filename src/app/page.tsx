@@ -33,11 +33,11 @@ interface ShipmentDetail {
   no_smu_bl: string
   no_flight_countr: string
   do_balik: string
-  no_invoice?: string
-  tanggal_invoice?: string
-  invoice_customer?: string
-  keterangan?: string
-  no_stt?: string
+  no_invoice?: string | null
+  tanggal_invoice?: string | null
+  invoice_customer?: string | null
+  keterangan?: string | null
+  no_stt?: string | null
 }
 
 interface Stats {

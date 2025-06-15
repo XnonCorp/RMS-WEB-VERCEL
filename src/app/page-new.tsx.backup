@@ -191,11 +191,10 @@ export default function Dashboard() {
       'Customer': row.customer || '-',
       'Tujuan': row.tujuan || '-',
       'Qty': row.qty || '-',
-      'Tgl. Diterima': formatDate(row.diterima),
-      'Penerima': row.penerima || '-',
+      'Tgl. Diterima': formatDate(row.diterima),      'Penerima': row.penerima || '-',
       'Dok. Balik': row.do_balik || '-',
       'No. Inv': row.no_invoice || '-',
-      'Tgl. Inv': formatDate(row.tanggal_invoice),
+      'Tgl. Inv': formatDate(row.tanggal_invoice || null),
       'Keterangan/Status': row.keterangan || (row.diterima ? 'Diterima' : row.berangkat ? 'In Transit' : 'Belum Berangkat')
     }))
 
