@@ -46,7 +46,8 @@ CREATE TABLE invoices (
   keterangan TEXT,
   no_stt TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(no_sp, no_invoice)
 );
 
 -- 3. Create indexes for better performance

@@ -136,23 +136,33 @@ async function syncGoogleSheetsToSupabase() {
       }
       
       console.log(`✅ Successfully upserted ${shipmentData.length} shipments`);
-    }
-
-    // Upsert invoices
+    }    // Upsert invoices
     if (invoiceData.length > 0) {
+      console.log(`📋 Sample invoice data:`, invoiceData.slice(0, 2));
+      
+      // Use different strategy: delete all and insert (since we sync full data)
+      const { error: deleteError } = await supabase
+        .from('invoices')
+        .delete()
+        .neq('id', 0); // Delete all records
+        
+      if (deleteError) {
+        console.error('Error clearing invoices:', deleteError);
+      } else {
+        console.log('🗑️ Cleared existing invoice data');
+      }
+      
       const { error: invoiceError } = await supabase
         .from('invoices')
-        .upsert(invoiceData, { 
-          onConflict: 'no_sp',
-          ignoreDuplicates: false 
-        });
+        .insert(invoiceData);
 
       if (invoiceError) {
-        console.error('Error upserting invoices:', invoiceError);
+        console.error('Error inserting invoices:', invoiceError);
+        console.error('Sample problematic invoice data:', invoiceData.slice(0, 5));
         throw invoiceError;
       }
       
-      console.log(`✅ Successfully upserted ${invoiceData.length} invoices`);
+      console.log(`✅ Successfully inserted ${invoiceData.length} invoices`);
     }
 
     // 4. Get final statistics
