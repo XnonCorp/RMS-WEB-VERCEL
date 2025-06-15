@@ -13,12 +13,6 @@ function cleanString(value) {
   return value.toString().trim();
 }
 
-// Clean string values
-function cleanString(value) {
-  if (!value || value === '' || value === '-') return null;
-  return value.toString().trim();
-}
-
 async function syncGoogleSheetsToSupabase() {
   console.log('🚀 Starting sync process...');
   
