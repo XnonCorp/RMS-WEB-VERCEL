@@ -1,18 +1,22 @@
-name: Sync Google Sheets to Supabase
+name: Smart Sync Google Sheets to Supabase
 
 on:
-  # Schedule to run every day at 2 AM UTC
+  # Schedule to run every 4 hours
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 */4 * * *'
   
   # Allow manual trigger
   workflow_dispatch:
     inputs:
-      force_sync:
-        description: 'Force sync even if no changes detected'
+      sync_method:
+        description: 'Sync method to use'
         required: false
-        default: 'false'
-        type: boolean
+        default: 'smart'
+        type: choice
+        options:
+        - smart
+        - optimized
+        - original
 
 jobs:
   sync:
@@ -31,9 +35,8 @@ jobs:
       run: |
         npm install --omit=dev
         npm install googleapis @supabase/supabase-js
-        npm audit fix --force
-    
-    - name: Run sync script
+        
+    - name: Run sync
       env:
         GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         GOOGLE_SHEETS_ID_2025: ${{ secrets.GOOGLE_SHEETS_ID_2025 }}
@@ -41,12 +44,14 @@ jobs:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
       run: |
-        echo "Starting sync process..."
-        node scripts/sync-sheets.js
-        echo "Sync completed!"
+        METHOD="${{ github.event.inputs.sync_method || 'smart' }}"
+        echo "🚀 Running sync with method: $METHOD"
+        node scripts/sync-smart.js $METHOD
     
     - name: Notify on failure
       if: failure()
       run: |
+        echo "❌ Sync process failed!"
+        echo "Please check the logs and verify environment variables."
         echo "❌ Sync failed! Check the logs above for details."
         echo "Please check your environment variables and Google Sheets access."

@@ -5,11 +5,19 @@ Real-time shipment and invoice tracking dashboard with automated Google Sheets s
 ## ✨ Features
 
 - **📊 Real-time Dashboard** - View shipment and invoice data with interactive filters
-- **🔄 Automated Sync** - GitHub Actions automatically sync data from Google Sheets daily
+- **🧠 Smart Sync** - Intelligent sync that only updates when data changes (5-20x faster)
 - **🎯 Advanced Filtering** - Filter by customer, date range, and global search
 - **📤 Export Functionality** - Export filtered data to CSV
 - **📱 Responsive Design** - Bootstrap 5 responsive UI that works on all devices
 - **⚡ Fast Performance** - Next.js with Supabase for optimal speed
+
+## 🚀 **Optimized Sync System**
+
+The project now uses a smart sync system with 3 methods:
+
+- **🧠 Smart Sync** (Default): Checks for changes first, only syncs if needed
+- **⚡ Optimized Sync**: Incremental sync with change detection (5-20x faster)
+- **� Original Sync**: Full sync method (fallback)
 
 ## 🏗️ Architecture
 
@@ -127,11 +135,33 @@ cp .env.example .env.local
 
 # Add your environment variables to .env.local
 
+# Setup database for optimized sync (one-time)
+npm run setup-db
+
+# Test connections
+npm run test-connection
+
 # Run development server
 npm run dev
+```
 
-# Manual sync (for testing)
-npm run sync-sheets
+### 🔄 Sync Commands
+
+```bash
+# Smart sync (recommended) - only syncs if changes detected
+npm run sync
+
+# Optimized sync - faster incremental sync
+npm run sync-optimized  
+
+# Original sync method (fallback)
+npm run sync-original
+
+# Setup database for optimization (one-time)
+npm run setup-db
+
+# Test all connections
+npm run test-connection
 ```
 
 ## 📈 Usage

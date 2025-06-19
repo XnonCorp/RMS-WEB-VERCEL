@@ -6,7 +6,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync-sheets": "node scripts/sync-sheets.js",
+    "sync": "node scripts/sync-smart.js smart",
+    "sync-original": "node scripts/sync-smart.js original",
+    "sync-optimized": "node scripts/sync-smart.js optimized",
+    "setup-db": "node scripts/setup-db.js setup",
+    "test-connection": "node scripts/setup-db.js test",
+    "cleanup-db": "node scripts/setup-db.js cleanup",
     "audit-fix": "npm audit fix --force",
     "clean-install": "rm -rf node_modules package-lock.json && npm install"
   },
