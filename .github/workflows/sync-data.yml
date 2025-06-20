@@ -2,8 +2,8 @@ name: Smart Sync Google Sheets to Supabase
 
 on:
   # Schedule to run every 4 hours
-  schedule:
-    - cron: '0 */4 * * *'
+  #schedule:
+    #- cron: '0 */4 * * *'
   
   # Allow manual trigger
   workflow_dispatch:
